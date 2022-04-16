@@ -6,8 +6,8 @@ using CN = dd::ComplexNumbers;
 
 qc::MatrixDD DeterministicNoiseSimulator::makeZeroDensityOperator(dd::QubitCount n) {
     auto f = qc::MatrixDD::one;
-    assert((signed char)n == n);
-    for (dd::Qubit p = 0; p < (signed char)n; p++) {
+    assert((dd::Qubit)n == n);
+    for (dd::Qubit p = 0; p < (dd::Qubit)n; p++) {
         f = dd->makeDDNode(p, std::array{f, qc::MatrixDD::zero, qc::MatrixDD::zero, qc::MatrixDD::zero});
     }
     return f;
@@ -40,7 +40,7 @@ char DeterministicNoiseSimulator::MeasureOneCollapsing(dd::Qubit index) {
 
     auto prob_zero = probForIndexToBeZero(density_root_edge, index, 1, 0);
 
-    for (dd::Qubit p = 0; p < (signed char)n_qubits; p++) {
+    for (dd::Qubit p = 0; p < (dd::Qubit)n_qubits; p++) {
         if (p == index) {
             if (prob_zero >= n) {
                 // Build the operation that it sets index to 0
@@ -159,7 +159,7 @@ std::map<std::string, double> DeterministicNoiseSimulator::DeterministicSimulate
                 [[maybe_unused]] auto cache_size_after = dd->cn.cacheCount();
                 assert(cache_size_after == cache_size_before);
             } else {
-                signed char maxDepth       = targets[0];
+                dd::Qubit   maxDepth       = targets[0];
                 auto        control_qubits = op->getControls();
                 for (auto& control: control_qubits) {
                     if (control.qubit < maxDepth) {
@@ -620,7 +620,7 @@ std::string DeterministicNoiseSimulator::intToString(long target_number, char va
     return path;
 }
 
-void DeterministicNoiseSimulator::noiseInsert(const qc::MatrixDD& a, const std::vector<signed char>& usedQubits, const qc::MatrixDD& r) {
+void DeterministicNoiseSimulator::noiseInsert(const qc::MatrixDD& a, const std::vector<dd::Qubit>& usedQubits, const qc::MatrixDD& r) {
     dd::ComplexValue    aw{dd::CTEntry::val(a.w.r), dd::CTEntry::val(a.w.i)};
     const unsigned long i = noiseHash(a.p, aw, usedQubits);
 
@@ -634,7 +634,7 @@ void DeterministicNoiseSimulator::noiseInsert(const qc::MatrixDD& a, const std::
     NoiseTable[i].rw.i = r.w.i->value;
 }
 
-qc::MatrixDD DeterministicNoiseSimulator::noiseLookup(const qc::MatrixDD& a, const std::vector<signed char>& usedQubits) {
+qc::MatrixDD DeterministicNoiseSimulator::noiseLookup(const qc::MatrixDD& a, const std::vector<dd::Qubit>& usedQubits) {
     // Lookup a computation in the compute table
     // return NULL if not a match else returns result of prior computation
     qc::MatrixDD r{nullptr, {nullptr, nullptr}};
@@ -658,7 +658,7 @@ qc::MatrixDD DeterministicNoiseSimulator::noiseLookup(const qc::MatrixDD& a, con
     return r;
 }
 
-unsigned long DeterministicNoiseSimulator::noiseHash(dd::Package::mNode* a, const dd::ComplexValue& aw, const std::vector<signed char>& usedQubits) {
+unsigned long DeterministicNoiseSimulator::noiseHash(dd::Package::mNode* a, const dd::ComplexValue& aw, const std::vector<dd::Qubit>& usedQubits) {
     unsigned long i = 0;
 
     for (auto qubit: usedQubits) {

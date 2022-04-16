@@ -481,7 +481,7 @@ std::string StochasticNoiseSimulator::intToString(long target_number) const {
     }
     return path;
 }
-void StochasticNoiseSimulator::setMeasuredQubitToZero(signed char& at, dd::Package::vEdge& e, std::unique_ptr<dd::Package>& localDD) {
+void StochasticNoiseSimulator::setMeasuredQubitToZero(dd::Qubit& at, dd::Package::vEdge& e, std::unique_ptr<dd::Package>& localDD) {
     auto f = dd::Package::mEdge::one;
 
     for (std::size_t p = 0; p < getNumberOfQubits(); p++) {
